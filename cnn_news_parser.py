@@ -2,7 +2,7 @@ import feedparser
 from textblob import TextBlob as tb
 import re
 
-url = "http://feeds.foxnews.com/foxnews/latest"
+url = "http://rss.cnn.com/rss/cnn_topstories.rss"
 feed = feedparser.parse(url)
 
 # number of stories
