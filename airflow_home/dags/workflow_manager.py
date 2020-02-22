@@ -2,12 +2,63 @@ from datetime import timedelta, datetime
 
 # [START import_module]
 # The DAG object; we'll need this to instantiate a DAG
+import feedparser
 from airflow import DAG
 # Operators; we need this to operate!
 from airflow.operators.bash_operator import BashOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
+from textblob import TextBlob as tb
+import re
+
 
 # [END import_module]
+
+
+def rss_feed_scraper(url):
+    feed = feedparser.parse(url)
+
+    # number of stories
+    numStories = len(feed['entries'])
+
+    # list to contain polarity of stories
+    final = []
+
+    for i in range(0, numStories):
+        # print(feed['entries'][i])
+        # initial description
+        descInit = feed['entries'][i]['summary_detail']['value']
+        # cleaning out the img tag
+        # descClean = re.sub('\<img.*$', '', descInit)
+        cleanr = re.compile('<.*?>')
+        descClean = re.sub(cleanr, '', descInit)
+        # final description
+        desc = tb(descClean)
+        print("Description >>>>>>>>>>>>>>>>>>>>")
+        print(desc)
+        # title of the entry
+        title = tb(feed['entries'][i]['title'])
+        # final string which contains description and headline to get a better polarity result
+        if not title.ends_with("."):
+            title = title + "."
+        completeString = title + " " + desc
+        print("Complete String >>>>>>>>>>>>>>>>")
+        print(completeString)
+        # appending story headline and descrition polarity to final list
+        final.append(completeString.sentiment.polarity)
+
+    # polarity calculations
+    finalPolarity = sum(final) / len(final)
+    print(min(final))
+    worstPolarity = final.index(min(final))
+    print(max(final))
+    bestPolarity = final.index(max(final))
+
+    print(finalPolarity)
+    print(worstPolarity)
+    print(bestPolarity)
+
+
 
 # [START default_args]
 # These args will get passed on to each operator
@@ -46,35 +97,39 @@ dag = DAG(
 )
 # [END instantiate_dag]
 
-# t1, t2 and t3 are examples of tasks created by instantiating operators
+# t1 and t2 are examples of tasks created by instantiating operators
 # [START basic_task]
-t1 = BashOperator(
+t1 = PythonOperator(
     task_id='fox_news_parser',
     depends_on_past=False,
-    bash_command='python /home/abin/my_works/github_works/apache_airflow/foxnews_parser.py',
-    retries=3,
+    python_callable=rss_feed_scraper,
+    op_kwargs={'url': "http://rss.cnn.com/rss/cnn_topstories.rss"},
+    # retries=3,
     dag=dag,
 )
 
-t2 = BashOperator(
+t2 = PythonOperator(
     task_id='cnn_news_parser',
     depends_on_past=False,
-    bash_command='python  /home/abin/my_works/github_works/apache_airflow/cnn_news_parser.py',
-    retries=3,
+    python_callable=rss_feed_scraper,
+    op_kwargs={'url': "http://feeds.foxnews.com/foxnews/latest"},
+    # retries=3,
     dag=dag,
 )
+
+
 # [END basic_task]
 
 # [START documentation]
-dag.doc_md = __doc__
-
-t1.doc_md = """\
-#### Task Documentation
-You can document your task using the attributes `doc_md` (markdown),
-`doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
-rendered in the UI's Task Instance Details page.
-![img](http://montcs.bloomu.edu/~bobmon/Semesters/2012-01/491/import%20soul.png)
-"""
+# dag.doc_md = __doc__
+#
+# t1.doc_md = """\
+# #### Task Documentation
+# You can document your task using the attributes `doc_md` (markdown),
+# `doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
+# rendered in the UI's Task Instance Details page.
+# ![img](http://montcs.bloomu.edu/~bobmon/Semesters/2012-01/491/import%20soul.png)
+# """
 # [END documentation]
 
 # [START jinja_template]
