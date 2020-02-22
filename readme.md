@@ -9,6 +9,10 @@ pip install --upgrade setuptools
 
 pip install apache-airflow[celery]
 
+
+#####
+export AIRFLOW_HOME=airflow_home
+
 airflow initdb
 
 

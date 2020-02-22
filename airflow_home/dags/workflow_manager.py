@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 # [START import_module]
 # The DAG object; we'll need this to instantiate a DAG
@@ -20,7 +20,7 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=1),
     # 'queue': 'bash_queue',
     # 'pool': 'backfill',
     # 'priority_weight': 10,
@@ -39,25 +39,27 @@ default_args = {
 
 # [START instantiate_dag]
 dag = DAG(
-    'test_dag',
+    'news_fetch',
     default_args=default_args,
-    description='A simple tutorial DAG',
-    schedule_interval=timedelta(days=1),
+    description='News Fetch DAG',
+    schedule_interval=timedelta(minutes=1),
 )
 # [END instantiate_dag]
 
 # t1, t2 and t3 are examples of tasks created by instantiating operators
 # [START basic_task]
 t1 = BashOperator(
-    task_id='print_date',
-    bash_command='date',
+    task_id='fox_news_parser',
+    depends_on_past=False,
+    bash_command='python /home/abin/my_works/github_works/apache_airflow/foxnews_parser.py',
+    retries=3,
     dag=dag,
 )
 
 t2 = BashOperator(
-    task_id='sleep',
+    task_id='cnn_news_parser',
     depends_on_past=False,
-    bash_command='sleep 5',
+    bash_command='python  /home/abin/my_works/github_works/apache_airflow/cnn_news_parser.py',
     retries=3,
     dag=dag,
 )
@@ -76,22 +78,23 @@ rendered in the UI's Task Instance Details page.
 # [END documentation]
 
 # [START jinja_template]
-templated_command = """
-{% for i in range(5) %}
-    echo "{{ ds }}"
-    echo "{{ macros.ds_add(ds, 7)}}"
-    echo "{{ params.my_param }}"
-{% endfor %}
-"""
-
-t3 = BashOperator(
-    task_id='templated',
-    depends_on_past=False,
-    bash_command=templated_command,
-    params={'my_param': 'Parameter I passed in'},
-    dag=dag,
-)
+# templated_command = """
+# {% for i in range(5) %}
+#     echo "{{ ds }}"
+#     echo "{{ macros.ds_add(ds, 7)}}"
+#     echo "{{ params.my_param }}"
+# {% endfor %}
+# """
+#
+# t3 = BashOperator(
+#     task_id='templated',
+#     depends_on_past=False,
+#     bash_command=templated_command,
+#     params={'my_param': 'Parameter I passed in'},
+#     dag=dag,
+# )
 # [END jinja_template]
-
-t1 >> [t2, t3]
+#
+# t1, t2
 # [END tutorial]
+# t1, t2
