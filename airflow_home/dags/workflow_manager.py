@@ -44,7 +44,7 @@ def rss_feed_scraper(url):
         completeString = title + " " + desc
         print("Complete String >>>>>>>>>>>>>>>>")
         print(completeString)
-        # appending story headline and descrition polarity to final list
+        # appending story headline and description polarity to final list
         final.append(completeString.sentiment.polarity)
 
     # polarity calculations

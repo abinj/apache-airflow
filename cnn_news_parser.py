@@ -1,3 +1,5 @@
+import datetime
+
 import feedparser
 from textblob import TextBlob as tb
 import re
@@ -10,6 +12,9 @@ numStories = len(feed['entries'])
 
 # list to contain polarity of stories
 final = []
+feeds = []
+source = "cnn"
+format = "%a, %d %b %Y %H:%M:%S %Z"
 
 for i in range(0,numStories):
     # print(feed['entries'][i])
@@ -31,6 +36,18 @@ for i in range(0,numStories):
     completeString = title + " " + desc
     print("Complete String >>>>>>>>>>>>>>>>")
     print(completeString)
+    pub_date = ""
+    try:
+        pub_date = tb(feed['entries'][i]['published'])
+        print(pub_date)
+    except:
+        print("No Publish Date")
+
+    if pub_date is not "":
+        feeds.append({"Text": completeString, "date": datetime.datetime.strptime(str(pub_date), format)
+                         , "title": title, "description": desc, "source": source})
+
+
     # appending story headline and descrition polarity to final list
     final.append(completeString.sentiment.polarity)
 

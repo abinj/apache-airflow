@@ -10,6 +10,9 @@ numStories = len(feed['entries'])
 
 # list to contain polarity of stories
 final = []
+feeds = []
+source = "foxnews"
+format = "%a, %d %b %Y %H:%M:%S %Z"
 
 for i in range(0,numStories):
     # print(feed['entries'][i])
