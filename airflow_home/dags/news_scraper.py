@@ -6,8 +6,7 @@ import re
 from pymongo import MongoClient
 
 format = "%a, %d %b %Y %H:%M:%S %Z"
-client = MongoClient('mongodb+srv://abi0708:learn4fun@cluster0-wht0f.mongodb.net/bdat_sdm?retryWrites=true&w=majority')
-
+client = MongoClient('mongodb+srv://<username>:<password>@cluster0-wht0f.mongodb.net/bdat_sdm?retryWrites=true&w=majority')
 
 
 def rss_feed_scraper(url):
@@ -53,8 +52,8 @@ def rss_feed_scraper(url):
             feeds.append({"Text": completeString, "date": datetime.datetime.strptime(str(pub_date), format)
                              , "title": title, "description": desc, "source": source})
     # client.bdat_sdm.news.insert_many(feeds)
-        # appending story headline and description polarity to final list
-        # final.append(completeString.sentiment.polarity)
+    # appending story headline and description polarity to final list
+    # final.append(completeString.sentiment.polarity)
 
     # polarity calculations
     # finalPolarity = sum(final) / len(final)
