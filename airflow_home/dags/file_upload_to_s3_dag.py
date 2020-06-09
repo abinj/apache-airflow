@@ -3,22 +3,26 @@ import boto3
 from datetime import timedelta
 
 from airflow import DAG
+from airflow.hooks.S3_hook import S3Hook
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.timezone import datetime
 
-
-
-
 s3 = boto3.resource('s3')
 
-
+# S3 file upload without airflow hook
 def upload_file_to_S3(filename, key, bucket_name):
     s3.Bucket(bucket_name).upload_file(filename, key)
 
 
+# AWS S3 upload with airflow hook
+def upload_file_to_S3_with_hook(filename, key, bucket_name):
+    hook = S3Hook('my_S3_conn')
+    hook.load_file(filename, key, bucket_name)
+
+
 default_args = {
     'owner': 'abin',
-    'start_date': datetime(2019,1,1),
+    'start_date': datetime(2019, 1, 1),
     'retry_delay': timedelta(minutes=5)
 }
 
@@ -32,8 +36,8 @@ default_args = {
 # Using the context manager allows you not duplicate the dag parameter in each operator
 with DAG('S3_dag_test', default_args=default_args, schedule_interval='@once') as dag:
     upload_to_s3_task = PythonOperator(
-        task_id = 'upload_file_To_s3',
-        python_callable =upload_file_to_S3,
+        task_id='upload_file_To_s3',
+        python_callable=upload_file_to_S3_with_hook,
         op_kwargs={
             'filename': '/home/abin/test1.txt',
             'key': 'my_S3_file.csv',
