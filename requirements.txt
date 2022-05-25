@@ -66,7 +66,7 @@ prison==0.1.2
 psutil==5.6.7
 pycparser==2.19
 Pygments==2.5.2
-PyJWT==1.7.1
+PyJWT==2.4.0
 pymongo==3.10.1
 PyMySQL==0.9.3
 pyrsistent==0.15.7
