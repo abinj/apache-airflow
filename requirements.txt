@@ -59,7 +59,7 @@ marshmallow==2.19.5
 marshmallow-enum==1.5.1
 marshmallow-sqlalchemy==0.22.2
 nltk==3.4.5
-numpy==1.18.1
+numpy==1.22.0
 pandas==0.25.3
 pendulum==1.4.4
 prison==0.1.2
